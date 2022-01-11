@@ -4,24 +4,24 @@ const { randomBytes } = require('crypto')
 const app = express()
 app.use(express.json())
 
-const comments = {}
+const commentsByPostId = {}
 
-app.get('/comments', (req, res) => {
-  res.send(comments)
+app.get('posts/:id/comments', (req, res) => {
+  res.send(commentsByPostId[req.params.id] || [])
 })
 
-app.comment('/comments', (req, res) => {
-  const id = randomBytes(4).toString('hex')
-  const { title } = req.body
+app.post('posts/:id/comments', (req, res) => {
+  const commentId = randomBytes(4).toString('hex')
+  const { content } = req.body
 
-  comments[id] = {
-    id,
-    title,
-  }
+  const comments = commentsByPostId[req.params.id] || []
 
-  res.status(201).send(comments[id])
+  comments.push({ id: commentId, content })
+  commentsByPostId[req.params.id] = comments
+
+  res.status(201).send(comments)
 })
 
-app.listen(4000, () => {
-  console.log('Listening on 4000')
+app.listen(4001, () => {
+  console.log('Listening on 4001')
 })
